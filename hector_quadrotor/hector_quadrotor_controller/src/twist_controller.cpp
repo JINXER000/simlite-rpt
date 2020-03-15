@@ -121,7 +121,6 @@ public:
   void twistCommandCallback(const geometry_msgs::TwistStampedConstPtr& command)
   {
     boost::mutex::scoped_lock lock(command_mutex_);
-
     command_ = *command;
     if (command_.header.stamp.isZero()) command_.header.stamp = ros::Time::now();
     command_given_in_stabilized_frame_ = false;
@@ -133,7 +132,6 @@ public:
   void cmd_velCommandCallback(const geometry_msgs::TwistConstPtr& command)
   {
     boost::mutex::scoped_lock lock(command_mutex_);
-
     command_.twist = *command;
     command_.header.stamp = ros::Time::now();
     command_given_in_stabilized_frame_ = true;
@@ -173,12 +171,14 @@ public:
 
   void update(const ros::Time& time, const ros::Duration& period)
   {
+    
     boost::mutex::scoped_lock lock(command_mutex_);
 
     // Get twist command input
     if (twist_input_->connected() && twist_input_->enabled()) {
       command_.twist = twist_input_->getCommand();
       command_given_in_stabilized_frame_ = false;
+      std::cout<<"get intrinsic twist  "<<command_.twist.linear.x<<","<<command_.twist.linear.y<<","<<command_.twist.linear.z<<std::endl;
     }
 
     // Get current state and command
@@ -271,11 +271,11 @@ public:
 
       ROS_DEBUG_STREAM_NAMED("twist_controller", "wrench_command.force:       [" << wrench_.wrench.force.x << " " << wrench_.wrench.force.y << " " << wrench_.wrench.force.z << "]");
       ROS_DEBUG_STREAM_NAMED("twist_controller", "wrench_command.torque:      [" << wrench_.wrench.torque.x << " " << wrench_.wrench.torque.y << " " << wrench_.wrench.torque.z << "]");
-
     } else {
       reset();
     }
-
+    // std::cout<<"wrench_command.force:       [" << wrench_.wrench.force.x << " " << wrench_.wrench.force.y << " " << wrench_.wrench.force.z << "]"<<std::endl;
+    // std::cout<< "wrench_command.torque:      [" << wrench_.wrench.torque.x << " " << wrench_.wrench.torque.y << " " << wrench_.wrench.torque.z << "]"<<std::endl;
     // set wrench output
     wrench_.header.stamp = time;
     wrench_.header.frame_id = base_link_frame_;
@@ -283,10 +283,13 @@ public:
   }
 
 private:
+  //state
   PoseHandlePtr pose_;
   TwistHandlePtr twist_;
   AccelerationHandlePtr acceleration_;
+  //cmd
   TwistCommandHandlePtr twist_input_;
+  //ctrl
   WrenchCommandHandlePtr wrench_output_;
 
   ros::NodeHandle node_handle_;

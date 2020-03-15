@@ -103,7 +103,8 @@ double PoseHandle::getYaw() const
   const Quaternion::_z_type& z = pose().orientation.z;
   return atan2(2.*x*y + 2.*w*z, x*x + w*w - z*z - y*y);
 }
-
+// transfer matrix, see
+//https://zhuanlan.zhihu.com/p/103622849?from_voters_page=true
 Vector3 PoseHandle::toBody(const Vector3& nav) const
 {
   const Quaternion::_w_type& w = pose().orientation.w;

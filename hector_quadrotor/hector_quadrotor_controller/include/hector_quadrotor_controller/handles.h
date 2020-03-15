@@ -141,6 +141,17 @@ public:
 };
 typedef boost::shared_ptr<PoseHandle> PoseHandlePtr;
 
+// class PVAHandle : public PoseHandle, public TwistHandle,public AccelerationHandle
+// {
+// public:
+//   PVAHandle() {}
+//   PVAHandle(QuadrotorInterface *interface, const Pose *pose, const Twist *twist,const Vector3 *acceleration) : 
+//   PoseHandle(interface, pose), TwistHandle(interface, twist) ,AccelerationHandle(interface,acceleration){}
+//   virtual ~PVAHandle() {}
+
+//   virtual bool connected() const { return PoseHandle::connected() && TwistHandle::connected()&& AccelerationHandle::acceleration(); }
+// };
+// typedef boost::shared_ptr<PVAHandle> PVAHandlePtr;
 class ImuHandle : public Handle_<ImuHandle, Imu>
 {
 public:
@@ -303,6 +314,8 @@ public:
   void getError(const PoseHandle &pose, double &x, double &y) const;
 };
 typedef boost::shared_ptr<HorizontalPositionCommandHandle> HorizontalPositionCommandHandlePtr;
+
+
 
 namespace internal {
   template <> struct FieldAccessor<HorizontalPositionCommandHandle> {

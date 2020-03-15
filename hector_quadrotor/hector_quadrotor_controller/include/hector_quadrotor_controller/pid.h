@@ -40,6 +40,61 @@ public:
   double getFilteredControlError(double& filtered_error, double time_constant, const ros::Duration& dt);
 };
 
+class LQR
+{
+
+  double *k;
+
+    double limit_output;
+    double *input_old;
+
+public:
+  LQR(){
+    k=new double[3]{100,17,0};
+    limit_output=10;
+    input_old=new double[3];
+  }
+  ~LQR(){
+    delete k;
+    delete input_old;
+  }
+
+
+  double update(double input_new, double state,  const ros::Duration& dt,int direvitive)
+  {
+    if(direvitive>2||direvitive<0)
+    {
+      ROS_ERROR("can only handle p,v,a");
+      return 0;
+    }
+
+    if(std::isnan(input_old[direvitive]))
+      input_old[direvitive]=input_new;
+    input_old[direvitive]=input_new*0.7+input_old[direvitive]*0.3;
+    return update(input_old[direvitive]-state,dt,direvitive);
+  }
+  double update(double error,  const ros::Duration& dt,int direvitive)
+  {
+    if(direvitive>2||direvitive<0)
+    {
+      ROS_ERROR("can only handle p,v,a");
+      return 0;
+    }
+
+    double output;
+    output=k[direvitive]*error;
+    if(output>limit_output)
+    {
+      output=limit_output;
+    }
+    if(output<-limit_output)
+    {
+      output=-limit_output;
+    }
+    return output;
+  }
+};
+
 } // namespace hector_quadrotor_controller
 
 #endif // HECTOR_QUADROTOR_CONTROLLER_PID_H

@@ -63,9 +63,9 @@ public:
     node_handle_ = root_nh;
 
     // subscribe to commanded pose and velocity
-    pose_subscriber_ = node_handle_.subscribe<common_msgs::state>("commonCMD/pva", 1, boost::bind(&PoseController::pvaCommandCallback, this, _1));
+    // pose_subscriber_ = node_handle_.subscribe<common_msgs::state>("commonCMD/pva", 1, boost::bind(&PoseController::pvaCommandCallback, this, _1));
 
-    // pose_subscriber_ = node_handle_.subscribe<geometry_msgs::PoseStamped>("command/pose", 1, boost::bind(&PoseController::poseCommandCallback, this, _1));
+    pose_subscriber_ = node_handle_.subscribe<geometry_msgs::PoseStamped>("command/pose", 1, boost::bind(&PoseController::poseCommandCallback, this, _1));
     twist_subscriber_ = node_handle_.subscribe<geometry_msgs::TwistStamped>("command/twist", 1, boost::bind(&PoseController::twistCommandCallback, this, _1));
 
     // initialize PID controllers
@@ -87,7 +87,6 @@ public:
 
   void pvaCommandCallback(const common_msgs::stateConstPtr& commandPVA)
   {
-    printf("i am updating \n");
     geometry_msgs::PoseStamped msgGe;
     msgGe.pose.position.x=commandPVA->pos.x;
     msgGe.pose.position.y=commandPVA->pos.y;
@@ -137,7 +136,6 @@ public:
   void update(const ros::Time& time, const ros::Duration& period)
   {
     Twist output;
-    
     // check command timeout
     // TODO
 
@@ -156,7 +154,7 @@ public:
       output.angular.z = pid_.yaw.update(HeadingCommandHandle(*pose_input_).getError(*pose_), twist_->twist().angular.z, period);
     }
 
-    // add twist command if available
+    // add twist command if available, feedforward the vel cmd
     if (twist_input_->enabled())
     {
       output.linear.x  += twist_input_->getCommand().linear.x;
@@ -165,6 +163,8 @@ public:
       output.angular.x += twist_input_->getCommand().angular.x;
       output.angular.y += twist_input_->getCommand().angular.y;
       output.angular.z += twist_input_->getCommand().angular.z;
+      std::cout<<"twist enabled"<<twist_input_->getCommand().linear.x<<","<<twist_input_->getCommand().linear.y<<","<<twist_input_->getCommand().linear.z<<std::endl;
+
     }
 
     // limit twist
