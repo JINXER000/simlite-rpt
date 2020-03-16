@@ -38,7 +38,7 @@
 #include <hector_uav_msgs/AttitudeCommand.h>
 #include <hector_uav_msgs/YawrateCommand.h>
 #include <hector_uav_msgs/ThrustCommand.h>
-
+#include <common_msgs/state.h>
 namespace hector_quadrotor_controller {
 
 class QuadrotorInterface;
@@ -277,6 +277,40 @@ public:
   virtual ~PoseCommandHandle() {}
 };
 typedef boost::shared_ptr<PoseCommandHandle> PoseCommandHandlePtr;
+
+
+//class PVACommandHandle : public CommandHandle_<PVACommandHandle, common_msgs::state>
+//{
+//public:
+//  using Base::operator=;
+
+//  PVACommandHandle() {}
+//  PVACommandHandle(QuadrotorInterface *interface, const std::string& name, const std::string& field = std::string()) : Base(interface, name, field) {}
+//  PVACommandHandle(common_msgs::state* command) { *this = command; }
+
+//  virtual ~PVACommandHandle() {}
+
+//  bool getPVAErr(geometry_msgs::Pose &cur_pose,
+//                    geometry_msgs::Twist &cur_twist,
+//                    Vector3 &cur_acc)
+//  {
+
+//     cur_pose.position.x=get()->pos.x-cur_pose.position.x;
+//     cur_pose.position.y= get()->pos.y-cur_pose.position.y;
+//     cur_pose.position.z=get()->pos.z-cur_pose.position.z;
+
+//     cur_twist.linear.x=get()->vel.x-cur_twist.linear.x;
+//     cur_twist.linear.y=get()->vel.y-cur_twist.linear.y;
+//     cur_twist.linear.z=get()->vel.z-cur_twist.linear.z;
+
+//     cur_acc.x=get()->acc.x-cur_acc.x;
+//     cur_acc.y=get()->acc.y-cur_acc.y;
+//     cur_acc.z=get()->acc.z-cur_acc.z;
+//    return wasNew();
+//  }
+
+//};
+//typedef boost::shared_ptr<PVACommandHandle> PVACommandHandlePtr;
 
 class HorizontalPositionCommandHandle : public CommandHandle_<HorizontalPositionCommandHandle, Point, PoseCommandHandle>
 {

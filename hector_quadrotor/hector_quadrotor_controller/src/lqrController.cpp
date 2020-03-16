@@ -35,7 +35,7 @@
 #include <geometry_msgs/WrenchStamped.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <std_srvs/Empty.h>
-
+#include <common_msgs/state.h>
 #include <ros/subscriber.h>
 #include <ros/callback_queue.h>
 
@@ -64,24 +64,30 @@ public:
     acceleration_  = interface->getAcceleration();
     pose_input_   =interface->addInput<PoseCommandHandle>("pose");
     twist_input_   = interface->addInput<TwistCommandHandle>("twist");
+//    pva_input_  =interface->addInput<common_msgs::state>("pva_cmd");
     wrench_output_ = interface->addOutput<WrenchCommandHandle>("wrench");
     node_handle_ = root_nh;
 
     // subscribe to commanded twist (geometry_msgs/TwistStamped) and cmd_vel (geometry_msgs/Twist)
-    pose_subscriber_ = node_handle_.subscribe<geometry_msgs::PoseStamped>("command/pose", 1, boost::bind(&PVAController::poseCommandCallback, this, _1));
-    twist_subscriber_ = node_handle_.subscribe<geometry_msgs::TwistStamped>("command/twist", 1, boost::bind(&PVAController::twistCommandCallback, this, _1));
-
+//    pose_subscriber_ = node_handle_.subscribe<geometry_msgs::PoseStamped>("command/pose", 1, boost::bind(&PVAController::poseCommandCallback, this, _1));
+//    twist_subscriber_ = node_handle_.subscribe<geometry_msgs::TwistStamped>("command/twist", 1, boost::bind(&PVAController::twistCommandCallback, this, _1));
+    pva_subscriber_ = node_handle_.subscribe<common_msgs::state>("commonCMD/pva", 1, boost::bind(&PVAController::pvaCommandCallback, this, _1));
     // engage/shutdown service servers
     engage_service_server_ = node_handle_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>("engage", boost::bind(&PVAController::engageCallback, this, _1, _2));
     shutdown_service_server_ = node_handle_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>("shutdown", boost::bind(&PVAController::shutdownCallback, this, _1, _2));
 
     // initialize PID controllers
-    pid_.linear.x.init(ros::NodeHandle(controller_nh, "linear/xy"));
-    pid_.linear.y.init(ros::NodeHandle(controller_nh, "linear/xy"));
-    pid_.linear.z.init(ros::NodeHandle(controller_nh, "linear/z"));
+//    pid_.linear.x.init(ros::NodeHandle(controller_nh, "linear/xy"));
+//    pid_.linear.y.init(ros::NodeHandle(controller_nh, "linear/xy"));
+//    pid_.linear.z.init(ros::NodeHandle(controller_nh, "linear/z"));
     pid_.angular.x.init(ros::NodeHandle(controller_nh, "angular/xy"));
     pid_.angular.y.init(ros::NodeHandle(controller_nh, "angular/xy"));
     pid_.angular.z.init(ros::NodeHandle(controller_nh, "angular/z"));
+
+    // initalize RPT or LQR
+    lqr_.x.init(ros::NodeHandle(controller_nh, "LQR/xy"));
+    lqr_.y.init(ros::NodeHandle(controller_nh, "LQR/xy"));
+    lqr_.z.init(ros::NodeHandle(controller_nh, "LQR/z"));
 
     // load other parameters
     controller_nh.getParam("auto_engage", auto_engage_ = false);
@@ -143,7 +149,37 @@ public:
 
   }
 
+  void pvaCommandCallback(const common_msgs::stateConstPtr& commandPVA)
+  {
+    geometry_msgs::PoseStamped msgGe;
+    msgGe.pose.position.x=commandPVA->pos.x;
+    msgGe.pose.position.y=commandPVA->pos.y;
+    msgGe.pose.position.z=commandPVA->pos.z;
 
+    pose_command_ = msgGe;
+    if (!(pose_input_->connected())) *pose_input_ = &(pose_command_.pose);
+    pose_input_->start();
+
+    geometry_msgs::TwistStamped msgtw;
+    msgtw.twist.linear.x=commandPVA->vel.x;
+    msgtw.twist.linear.y=commandPVA->vel.y;
+    msgtw.twist.linear.z=commandPVA->vel.z;
+
+    command_=msgtw;
+    if (command_.header.stamp.isZero()) command_.header.stamp = ros::Time::now();
+
+
+    AccCmd.x=commandPVA->acc.x;
+    AccCmd.y=commandPVA->acc.y;
+    AccCmd.z=commandPVA->acc.z;
+
+//    pva_cmd=*commandPVA;
+//    if (pva_cmd.header.stamp.isZero()) pva_cmd.header.stamp = ros::Time::now();
+
+    ros::Time start_time = commandPVA->header.stamp;
+    if (start_time.isZero()) start_time = ros::Time::now();
+    if (!isRunning()) this->startRequest(start_time);
+  }
   bool engageCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&)
   {
     boost::mutex::scoped_lock lock(command_mutex_);
@@ -257,6 +293,8 @@ public:
         // control horizontal position
         HorizontalPositionCommandHandle(*pose_input_).getError(*pose_, error_n, error_w);
         error_u=HeightCommandHandle(*pose_input_).getError(*pose_);
+
+
         acceleration_command_tmp.x=lqr_.x.update(error_n,period,0);
         acceleration_command_tmp.y=lqr_.y.update(error_w,period,0);
         // control height
@@ -267,7 +305,22 @@ public:
       acceleration_command.x=lqr_.x.update(twist_command.linear.x, twist_now.linear.x,period,1)+acceleration_command_tmp.x;
       acceleration_command.y=lqr_.y.update(twist_command.linear.y, twist_now.linear.y,period,1)+acceleration_command_tmp.y;
       acceleration_command.z=lqr_.z.update(twist_command.linear.z, twist_now.linear.z,period,1)+acceleration_command_tmp.z+ gravity;
-//      acceleration_command.x = pid_.linear.x.update(twist_command.linear.x, twist_now.linear.x, acceleration_->acceleration().x, period);
+
+
+      if(!std::isnan(AccCmd.x)&&!std::isnan(AccCmd.y)&&!std::isnan(AccCmd.z))
+      {
+        Vector3 acc_now=acceleration_->acceleration();
+        acceleration_command.x+=(AccCmd.x/*-acc_now.x*/);
+        acceleration_command.y+=(AccCmd.y/*-acc_now.y*/);
+        acceleration_command.z+=(AccCmd.z/*-acc_now.z*/);
+
+      }
+      lqr_.x.Limitor(acceleration_command.x);
+      lqr_.y.Limitor(acceleration_command.y);
+      lqr_.z.Limitor(acceleration_command.z);
+
+
+      //      acceleration_command.x = pid_.linear.x.update(twist_command.linear.x, twist_now.linear.x, acceleration_->acceleration().x, period);
 //      acceleration_command.y = pid_.linear.y.update(twist_command.linear.y, twist_now.linear.y, acceleration_->acceleration().y, period);
 //      acceleration_command.z = pid_.linear.z.update(twist_command.linear.z, twist_now.linear.z, acceleration_->acceleration().z, period) + gravity;
       Vector3 acceleration_command_body = pose_->toBody(acceleration_command);
@@ -322,17 +375,19 @@ private:
   //cmd
   PoseCommandHandlePtr pose_input_;
   TwistCommandHandlePtr twist_input_;
+//  PVACommandHandlePtr pva_input_;
   //ctrl
   WrenchCommandHandlePtr wrench_output_;
 
   ros::NodeHandle node_handle_;
-  ros::Subscriber twist_subscriber_;
-  ros::Subscriber pose_subscriber_;
+  ros::Subscriber pva_subscriber_;
   ros::ServiceServer engage_service_server_;
   ros::ServiceServer shutdown_service_server_;
 
   geometry_msgs::PoseStamped pose_command_;
   geometry_msgs::TwistStamped command_;
+  common_msgs::state pva_cmd;
+  Vector3 AccCmd;
   geometry_msgs::WrenchStamped wrench_;
   bool command_given_in_stabilized_frame_;
   std::string base_link_frame_;

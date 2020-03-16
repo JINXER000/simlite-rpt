@@ -24,11 +24,11 @@ int main(int argc, char **argv)
     n.getParam("/refPub/refAdr", refAdr="noFile");
     int ctrlMethod;
     n.getParam("/refPub/ctrlMethod", ctrlMethod=posCtrl);
-    ros::Publisher ref_pos_pub = n.advertise<geometry_msgs::PoseStamped>("command/pose",1);
-    ros::Publisher ref_vel_pub = n.advertise<geometry_msgs::TwistStamped>("command/twist",1);
-    // ros::Publisher ref_pva_pub=n.advertise<common_msgs::state>("commonCMD/pva",1);
+//    ros::Publisher ref_pos_pub = n.advertise<geometry_msgs::PoseStamped>("command/pose",1);
+//    ros::Publisher ref_vel_pub = n.advertise<geometry_msgs::TwistStamped>("command/twist",1);
+     ros::Publisher ref_pva_pub=n.advertise<common_msgs::state>("commonCMD/pva",1);
     // ros::Duration(3).sleep(); 
-    ros::Rate loop_rate(20);
+    ros::Rate loop_rate(50);
 
     /* Read the reference txt file*/
     std::ifstream infile;
@@ -86,7 +86,7 @@ int main(int argc, char **argv)
             p.acc.y = _8;
             p.acc.z = _9;
             ref_list.push_back(p);        
-            // ref_pva_pub.publish(p);
+             ref_pva_pub.publish(p);
 
         
         }else
@@ -94,22 +94,22 @@ int main(int argc, char **argv)
             if(count+1>=ref_list.size())
                 count=0;
             p=ref_list[count];
-            // ref_pva_pub.publish(p);
+             ref_pva_pub.publish(p);
             count++;
         
 
         }
-            geometry_msgs::PoseStamped cmdPos;
-            cmdPos.pose.position.x=p.pos.x;
-            cmdPos.pose.position.y=p.pos.y;
-            cmdPos.pose.position.z=p.pos.z;
-            ref_pos_pub.publish(cmdPos);
+//            geometry_msgs::PoseStamped cmdPos;
+//            cmdPos.pose.position.x=p.pos.x;
+//            cmdPos.pose.position.y=p.pos.y;
+//            cmdPos.pose.position.z=p.pos.z;
+//            ref_pos_pub.publish(cmdPos);
 
-            geometry_msgs::TwistStamped cmdVel;
-            cmdVel.twist.linear.x=p.vel.x;
-             cmdVel.twist.linear.y=p.vel.y;            
-             cmdVel.twist.linear.z=p.vel.z;      
-             ref_vel_pub.publish(cmdVel);     
+//            geometry_msgs::TwistStamped cmdVel;
+//            cmdVel.twist.linear.x=p.vel.x;
+//             cmdVel.twist.linear.y=p.vel.y;
+//             cmdVel.twist.linear.z=p.vel.z;
+//             ref_vel_pub.publish(cmdVel);
 
         std::cout<<" P,V,A REF is "<<p.pos.x<<",  "<< p.pos.y<<",  "<< p.pos.z<<",  "<< p.vel.x<<",  "<< p.vel.y<<
         ",  "<< p.vel.z<<",  "<< p.acc.x<<",  "<< p.acc.y<<",  "<< p.acc.z<<std::endl;

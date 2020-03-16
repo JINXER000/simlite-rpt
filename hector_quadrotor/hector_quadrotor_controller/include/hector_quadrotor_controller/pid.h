@@ -43,15 +43,17 @@ public:
 class LQR
 {
 
-  double *k;
+    double *k;
 
     double limit_output;
     double *input_old;
+    bool enabled;
 
 public:
+    /// for RPT, let natural frequency=0.707, damping ratio=1.
   LQR(){
-    k=new double[3]{100,17,0};
-    limit_output=10;
+    k=new double[3];//{0.5,1.414,0}
+    limit_output;//=10
     input_old=new double[3];
   }
   ~LQR(){
@@ -59,6 +61,13 @@ public:
     delete input_old;
   }
 
+  void init(const ros::NodeHandle &param_nh)
+  {
+    param_nh.getParam("K1", k[0]);
+    param_nh.getParam("K2", k[1]);
+    param_nh.getParam("K3", k[2]);
+    param_nh.getParam("limit_output", limit_output);
+  }
 
   double update(double input_new, double state,  const ros::Duration& dt,int direvitive)
   {
@@ -81,8 +90,10 @@ public:
       return 0;
     }
 
-    double output;
-    output=k[direvitive]*error;
+    return k[direvitive]*error;
+  }
+  double Limitor(double output)
+  {
     if(output>limit_output)
     {
       output=limit_output;
