@@ -37,6 +37,7 @@
 #include <ros/subscriber.h>
 #include <ros/callback_queue.h>
 #include <common_msgs/state.h>
+#include <std_msgs/Float32.h>
 
 namespace hector_quadrotor_controller {
 
@@ -67,6 +68,8 @@ public:
 
     pose_subscriber_ = node_handle_.subscribe<geometry_msgs::PoseStamped>("command/pose", 1, boost::bind(&PoseController::poseCommandCallback, this, _1));
     twist_subscriber_ = node_handle_.subscribe<geometry_msgs::TwistStamped>("command/twist", 1, boost::bind(&PoseController::twistCommandCallback, this, _1));
+    state_pub=node_handle_.advertise<std_msgs::Float32>("common_state",1);
+    ref_pub=node_handle_.advertise<std_msgs::Float32>("common_ref",1);
 
     // initialize PID controllers
     pid_.x.init(ros::NodeHandle(controller_nh, "xy"));
@@ -141,6 +144,13 @@ public:
 
     // return if no pose command is available
     if (pose_input_->enabled()) {
+      // for plot
+      std_msgs::Float32 plot_states,plot_ref;
+      plot_states.data=pose_->get()->position.z;
+      state_pub.publish(plot_states);
+      plot_ref.data=pose_command_.pose.position.z;
+      ref_pub.publish(plot_ref);
+
       // control horizontal position
       double error_n, error_w;
       HorizontalPositionCommandHandle(*pose_input_).getError(*pose_, error_n, error_w);
@@ -208,6 +218,7 @@ private:
   ros::NodeHandle node_handle_;
   ros::Subscriber pose_subscriber_;
   ros::Subscriber twist_subscriber_;
+  ros::Publisher state_pub,ref_pub;
 
   struct {
     PID x;

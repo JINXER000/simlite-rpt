@@ -38,7 +38,7 @@
 #include <common_msgs/state.h>
 #include <ros/subscriber.h>
 #include <ros/callback_queue.h>
-
+#include <std_msgs/Float32.h>
 #include <boost/thread.hpp>
 
 #include <limits>
@@ -64,22 +64,18 @@ public:
     acceleration_  = interface->getAcceleration();
     pose_input_   =interface->addInput<PoseCommandHandle>("pose");
     twist_input_   = interface->addInput<TwistCommandHandle>("twist");
-//    pva_input_  =interface->addInput<common_msgs::state>("pva_cmd");
     wrench_output_ = interface->addOutput<WrenchCommandHandle>("wrench");
     node_handle_ = root_nh;
 
-    // subscribe to commanded twist (geometry_msgs/TwistStamped) and cmd_vel (geometry_msgs/Twist)
-//    pose_subscriber_ = node_handle_.subscribe<geometry_msgs::PoseStamped>("command/pose", 1, boost::bind(&PVAController::poseCommandCallback, this, _1));
-//    twist_subscriber_ = node_handle_.subscribe<geometry_msgs::TwistStamped>("command/twist", 1, boost::bind(&PVAController::twistCommandCallback, this, _1));
+
     pva_subscriber_ = node_handle_.subscribe<common_msgs::state>("commonCMD/pva", 1, boost::bind(&PVAController::pvaCommandCallback, this, _1));
     // engage/shutdown service servers
     engage_service_server_ = node_handle_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>("engage", boost::bind(&PVAController::engageCallback, this, _1, _2));
     shutdown_service_server_ = node_handle_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>("shutdown", boost::bind(&PVAController::shutdownCallback, this, _1, _2));
-
+    state_pub=node_handle_.advertise<std_msgs::Float32>("common_state",1);
+    ref_pub=node_handle_.advertise<std_msgs::Float32>("common_ref",1);
     // initialize PID controllers
-//    pid_.linear.x.init(ros::NodeHandle(controller_nh, "linear/xy"));
-//    pid_.linear.y.init(ros::NodeHandle(controller_nh, "linear/xy"));
-//    pid_.linear.z.init(ros::NodeHandle(controller_nh, "linear/z"));
+
     pid_.angular.x.init(ros::NodeHandle(controller_nh, "angular/xy"));
     pid_.angular.y.init(ros::NodeHandle(controller_nh, "angular/xy"));
     pid_.angular.z.init(ros::NodeHandle(controller_nh, "angular/z"));
@@ -173,9 +169,6 @@ public:
     AccCmd.y=commandPVA->acc.y;
     AccCmd.z=commandPVA->acc.z;
 
-//    pva_cmd=*commandPVA;
-//    if (pva_cmd.header.stamp.isZero()) pva_cmd.header.stamp = ros::Time::now();
-
     ros::Time start_time = commandPVA->header.stamp;
     if (start_time.isZero()) start_time = ros::Time::now();
     if (!isRunning()) this->startRequest(start_time);
@@ -214,13 +207,8 @@ public:
 
 
     boost::mutex::scoped_lock lock(command_mutex_);
-    //--no use
-//    if(pose_input_->connected()&&pose_input_->enabled())
-//    {
-////      std::cout<<"start get pose input"<<std::endl;
-//      pose_command_.pose=pose_input_->getCommand();
-//    }
-    // Get twist command input---no use
+
+    // Get twist command input
     if (twist_input_->connected() && twist_input_->enabled()) {
       command_.twist = twist_input_->getCommand();
       command_given_in_stabilized_frame_ = false;
@@ -228,8 +216,7 @@ public:
     }
 
     // Get current state and command
-//    Pose  pose_command=pose_command_.pose;
-//    Pose pose_now=pose_->pose();
+
     Twist twist_command = command_.twist;
     Twist twist_now = twist_->twist();
     Twist twist_body;
@@ -283,6 +270,12 @@ public:
     }
     // Update output
     if (motors_running_) {
+      // for plot
+      std_msgs::Float32 plot_states,plot_ref;
+      plot_states.data=pose_->get()->position.z;
+      state_pub.publish(plot_states);
+      plot_ref.data=pose_command_.pose.position.z;
+      ref_pub.publish(plot_ref);
 
       Vector3 acceleration_command,acceleration_command_tmp;
       double error_n, error_w,error_u;
@@ -320,18 +313,10 @@ public:
       lqr_.z.Limitor(acceleration_command.z);
 
 
-      //      acceleration_command.x = pid_.linear.x.update(twist_command.linear.x, twist_now.linear.x, acceleration_->acceleration().x, period);
-//      acceleration_command.y = pid_.linear.y.update(twist_command.linear.y, twist_now.linear.y, acceleration_->acceleration().y, period);
-//      acceleration_command.z = pid_.linear.z.update(twist_command.linear.z, twist_now.linear.z, acceleration_->acceleration().z, period) + gravity;
+
       Vector3 acceleration_command_body = pose_->toBody(acceleration_command);
       std::cout<<"get output acc  "<<acceleration_command<<std::endl;
-//      ROS_DEBUG_STREAM_NAMED("twist_controller", "twist_now.linear:               [" << twist_now.linear.x << " " << twist.linear.y << " " << twist.linear.z << "]");
-//      ROS_DEBUG_STREAM_NAMED("twist_controller", "twist_body.angular:         [" << twist_body.angular.x << " " << twist_body.angular.y << " " << twist_body.angular.z << "]");
-//      ROS_DEBUG_STREAM_NAMED("twist_controller", "twist_command.linear:       [" << twist_command.linear.x << " " << command.linear.y << " " << command.linear.z << "]");
-//      ROS_DEBUG_STREAM_NAMED("twist_controller", "twist_command.angular:      [" << twist_command.angular.x << " " << command.angular.y << " " << command.angular.z << "]");
-//      ROS_DEBUG_STREAM_NAMED("twist_controller", "acceleration:               [" << acceleration_->acceleration().x << " " << acceleration_->acceleration().y << " " << acceleration_->acceleration().z << "]");
-//      ROS_DEBUG_STREAM_NAMED("twist_controller", "acceleration_command_world: [" << acceleration_command.x << " " << acceleration_command.y << " " << acceleration_command.z << "]");
-//      ROS_DEBUG_STREAM_NAMED("twist_controller", "acceleration_command_body:  [" << acceleration_command_body.x << " " << acceleration_command_body.y << " " << acceleration_command_body.z << "]");
+
       wrench_.wrench.torque.x = inertia_[0] * pid_.angular.x.update(-acceleration_command_body.y / gravity, 0.0, twist_body.angular.x, period);
       wrench_.wrench.torque.y = inertia_[1] * pid_.angular.y.update( acceleration_command_body.x / gravity, 0.0, twist_body.angular.y, period);
       wrench_.wrench.torque.z = inertia_[2] * pid_.angular.z.update( twist_command.angular.z, twist_now.angular.z, 0.0, period);
@@ -391,6 +376,8 @@ private:
   geometry_msgs::WrenchStamped wrench_;
   bool command_given_in_stabilized_frame_;
   std::string base_link_frame_;
+
+  ros::Publisher state_pub,ref_pub;
 
   struct {
     struct {

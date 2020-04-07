@@ -23,7 +23,7 @@
   <library path="lib/libhector_quadrotor_pva_controller">
     <class name="hector_quadrotor_controller/PVAController" type="hector_quadrotor_controller::PVAController" base_class_type="controller_interface::ControllerBase">
     <description>
-      Input p,v,a, use lqr to compute wrench.
+      Input p,v,a, use rpt to compute wrench.
       </description>
     </class>
   </library>

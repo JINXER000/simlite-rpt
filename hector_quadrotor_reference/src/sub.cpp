@@ -24,10 +24,10 @@ int main(int argc, char **argv)
     n.getParam("/refPub/refAdr", refAdr="noFile");
     int ctrlMethod;
     n.getParam("/refPub/ctrlMethod", ctrlMethod=posCtrl);
-//    ros::Publisher ref_pos_pub = n.advertise<geometry_msgs::PoseStamped>("command/pose",1);
+    ros::Publisher ref_pos_pub = n.advertise<geometry_msgs::PoseStamped>("command/pose",1);
 //    ros::Publisher ref_vel_pub = n.advertise<geometry_msgs::TwistStamped>("command/twist",1);
      ros::Publisher ref_pva_pub=n.advertise<common_msgs::state>("commonCMD/pva",1);
-    // ros::Duration(3).sleep(); 
+
     ros::Rate loop_rate(50);
 
     /* Read the reference txt file*/
@@ -39,7 +39,6 @@ int main(int argc, char **argv)
     std_srvs::Empty::Response eRes;
     ros::service::call("/engage", eReq, eRes);
 
-    float refout[11];
     int count = 0;
 
 
@@ -47,19 +46,11 @@ int main(int argc, char **argv)
     bool if_replay=0;
     while (ros::ok())
     {
-        // ++count;
+
         
     if(ctrlMethod==0)
     {
-        // if (refFile >> refout[0]>> refout[1]>> refout[2]>> refout[3]>> refout[4]>> refout[5]
-        //         >> refout[6]>> refout[7]>> refout[8]>> refout[9]>> refout[10])
-        // {	
-	    // geometry_msgs::PoseStamped msgGe;
-        //     msgGe.pose.position.x = refout[0];
-        //     msgGe.pose.position.y = -refout[1];
-        //     msgGe.pose.position.z = -refout[2];
-	    // ref_pos_pub.publish(msgGe);
-        // }
+
             ROS_WARN("cfg fail!\n");
     }else
     {
@@ -99,11 +90,11 @@ int main(int argc, char **argv)
         
 
         }
-//            geometry_msgs::PoseStamped cmdPos;
-//            cmdPos.pose.position.x=p.pos.x;
-//            cmdPos.pose.position.y=p.pos.y;
-//            cmdPos.pose.position.z=p.pos.z;
-//            ref_pos_pub.publish(cmdPos);
+            geometry_msgs::PoseStamped cmdPos;
+            cmdPos.pose.position.x=p.pos.x;
+            cmdPos.pose.position.y=p.pos.y;
+            cmdPos.pose.position.z=p.pos.z;
+            ref_pos_pub.publish(cmdPos);
 
 //            geometry_msgs::TwistStamped cmdVel;
 //            cmdVel.twist.linear.x=p.vel.x;

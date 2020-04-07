@@ -52,13 +52,13 @@ controller:
     pva:
         type: hector_quadrotor_controller/PVAController
         LQR/xy:
-           K1: 0.5
-           K2: 1.414
+           K1: 0.64
+           K2: 1.6
            K3: 1
            limit_output: 10
         LQR/z:
-           K1: 0.5
-           K2: 1.414
+           K1: 0.64
+           K2: 1.6
            K3: 1
            limit_output: 8
         linear/xy:
