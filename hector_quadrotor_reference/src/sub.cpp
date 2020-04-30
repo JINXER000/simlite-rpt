@@ -40,7 +40,7 @@ int main(int argc, char **argv)
     ros::service::call("/engage", eReq, eRes);
 
     int count = 0;
-
+    int init_pos[3]={2.5,-2,0.25};
 
     std::vector<common_msgs::state> ref_list;
     bool if_replay=0;
@@ -67,9 +67,9 @@ int main(int argc, char **argv)
                 count=0;
             } // error
            
-            p.pos.x = _1-2.5;
-            p.pos.y = _2+2;
-            p.pos.z = _3-0.25;
+            p.pos.x = _1-init_pos[0];
+            p.pos.y = _2-init_pos[1];
+            p.pos.z = _3-init_pos[2];
             p.vel.x = _4;
             p.vel.y = _5;
             p.vel.z = _6;
