@@ -1,3 +1,0 @@
-<launch>
-    <node pkg="hector_quadrotor_reference" name="refPub" type="turtlesim_node"/>
-</launch>

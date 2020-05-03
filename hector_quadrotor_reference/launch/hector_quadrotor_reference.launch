@@ -1,5 +1,6 @@
 <launch>
 <param name="/refPub/refAdr" value="$(find hector_quadrotor_reference)/traj/1_file.txt"/>
+
     <node pkg="hector_quadrotor_reference" name="refPubNoReset" type="refPubNoReset" output="screen"/>
-    <rosparam command="load" file="$(find hector_quadrotor_reference)/launch/params.yaml"/>
+
 </launch>

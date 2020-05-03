@@ -1,0 +1,15 @@
+<launch>
+<param name="refPub/refAdr" value="$(find hector_quadrotor_reference)/traj/1_file.txt"/>
+
+<group ns="uav1">
+  <include file="$(find hector_quadrotor_reference)/launch/hector_quadrotor_reference.launch">
+  </include>
+  <param name="uavId" value="1"/>
+</group>
+
+<group ns="uav2">
+  <include file="$(find hector_quadrotor_reference)/launch/hector_quadrotor_reference.launch">
+  </include>
+  <param name="uavId" value="2"/>
+</group>
+</launch>

@@ -17,3 +17,9 @@ For  now, pointcloud in rviz is relative to base_link.
 - source devel/sebup.bash
 - roslaunch hector_quadrotor_demo carpark_velodyne.launch
 - roslaunch hector_quadrotor_reference hector_quadrotor_reference.launch
+
+## Update multiple uav support
+### To launch the simulator:
+- source devel/sebup.bash
+- roslaunch hector_quadrotor_demo carpark_2quad.launch
+- roslaunch hector_quadrotor_reference ref_ns.launch

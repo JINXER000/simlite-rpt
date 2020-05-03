@@ -22,8 +22,26 @@ int main(int argc, char **argv)
     std::string refAdr;
     
     n.getParam("/refPub/refAdr", refAdr="noFile");
-    int ctrlMethod;
-    n.getParam("/refPub/ctrlMethod", ctrlMethod=posCtrl);
+//    int ctrlMethod;
+//    n.getParam("/refPub/ctrlMethod", ctrlMethod=posCtrl);
+    int init_pos[3]={2.5,-2,0.25};
+    std_srvs::Empty::Request eReq;
+    std_srvs::Empty::Response eRes;
+
+    int uavId=999;
+    n.getParam("uavId", uavId);
+    if(uavId==1)
+    {
+      init_pos[1]+=1;
+      ros::service::call("/uav1/engage", eReq, eRes);
+    }else if(uavId==2)
+    {
+      init_pos[1]-=1;
+      ros::service::call("/uav2/engage", eReq, eRes);
+    }else
+    {
+      ros::service::call("/engage", eReq, eRes);
+    }
     ros::Publisher ref_pos_pub = n.advertise<geometry_msgs::PoseStamped>("command/pose",1);
 //    ros::Publisher ref_vel_pub = n.advertise<geometry_msgs::TwistStamped>("command/twist",1);
      ros::Publisher ref_pva_pub=n.advertise<common_msgs::state>("commonCMD/pva",1);
@@ -35,12 +53,8 @@ int main(int argc, char **argv)
     std::string line;
     infile.open(refAdr.c_str());
 
-    std_srvs::Empty::Request eReq;
-    std_srvs::Empty::Response eRes;
-    ros::service::call("/engage", eReq, eRes);
-
     int count = 0;
-    int init_pos[3]={2.5,-2,0.25};
+
 
     std::vector<common_msgs::state> ref_list;
     bool if_replay=0;
@@ -48,12 +62,12 @@ int main(int argc, char **argv)
     {
 
         
-    if(ctrlMethod==0)
-    {
+//    if(ctrlMethod==0)
+//    {
 
-            ROS_WARN("cfg fail!\n");
-    }else
-    {
+//            ROS_WARN("cfg fail!\n");
+//    }else
+//    {
          common_msgs::state p;
         if(!if_replay)
         {
@@ -105,7 +119,7 @@ int main(int argc, char **argv)
         std::cout<<" P,V,A REF is "<<p.pos.x<<",  "<< p.pos.y<<",  "<< p.pos.z<<",  "<< p.vel.x<<",  "<< p.vel.y<<
         ",  "<< p.vel.z<<",  "<< p.acc.x<<",  "<< p.acc.y<<",  "<< p.acc.z<<std::endl;
 
-    }
+//    }
     
 
         ros::spinOnce();

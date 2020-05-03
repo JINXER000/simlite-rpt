@@ -147,6 +147,7 @@ public:
 
   void pvaCommandCallback(const common_msgs::stateConstPtr& commandPVA)
   {
+
     geometry_msgs::PoseStamped msgGe;
     msgGe.pose.position.x=commandPVA->pos.x;
     msgGe.pose.position.y=commandPVA->pos.y;
@@ -270,6 +271,7 @@ public:
     }
     // Update output
     if (motors_running_) {
+      printf("get in!\n");
       // for plot
       std_msgs::Float32 plot_states,plot_ref;
       plot_states.data=pose_->get()->position.z;
