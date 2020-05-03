@@ -6,7 +6,7 @@ Also, you need to update  the initial position of UAV by substracting the offset
 
 ### To launch the simulator:
 - source devel/sebup.bash
-- roslaunch hector_quadrotor_demo indoor_simulation.launch
+- roslaunch hector_quadrotor_demo indoor_slam_gazebo.launch.launch
 - roslaunch hector_quadrotor_reference hector_quadrotor_reference.launch
 
 
