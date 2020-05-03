@@ -20,7 +20,7 @@
   </include>
 
   <include file="$(find hector_quadrotor_gazebo)/launch/spawn_quadrotor_vlp16.launch" />
-  <!-- state publisher  -->
+  <!-- state publisher-->
   <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" output="screen" >
     <param name="publish_frequency" type="double" value="50.0" />
   </node>
