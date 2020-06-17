@@ -72,8 +72,9 @@ public:
     // engage/shutdown service servers
     engage_service_server_ = node_handle_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>("engage", boost::bind(&PVAController::engageCallback, this, _1, _2));
     shutdown_service_server_ = node_handle_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>("shutdown", boost::bind(&PVAController::shutdownCallback, this, _1, _2));
-    state_pub=node_handle_.advertise<std_msgs::Float32>("common_state",1);
+    statez_pub=node_handle_.advertise<std_msgs::Float32>("common_state",1);
     ref_pub=node_handle_.advertise<std_msgs::Float32>("common_ref",1);
+//    pose_pub = node_handle_.advertise<geometry_msgs::PoseStamped>("uavsimPose",1);
     // initialize PID controllers
 
     pid_.angular.x.init(ros::NodeHandle(controller_nh, "angular/xy"));
@@ -269,22 +270,29 @@ public:
       motors_running_ = false;
       ROS_WARN_NAMED("twist_controller", "Shutting down motors due to flip over!");
     }
+//    // publish real pose
+//    geometry_msgs::PoseStamped cur_pose;
+//    cur_pose.pose=*(pose_->get());
+//    cur_pose.header.stamp=time;
+//    pose_pub.publish(cur_pose);
     // Update output
     if (motors_running_) {
-      printf("get in!\n");
+
+
+
       // for plot
-      std_msgs::Float32 plot_states,plot_ref;
-      plot_states.data=pose_->get()->position.z;
-      state_pub.publish(plot_states);
-      plot_ref.data=pose_command_.pose.position.z;
-      ref_pub.publish(plot_ref);
+      std_msgs::Float32 plot_statez,plot_refz;
+      plot_statez.data=pose_->get()->position.z;
+      statez_pub.publish(plot_statez);
+      plot_refz.data=pose_command_.pose.position.z;
+      ref_pub.publish(plot_refz);
 
       Vector3 acceleration_command,acceleration_command_tmp;
       double error_n, error_w,error_u;
 
       if (pose_input_->enabled()) {
 
-        std::cout<<"get vel cmd  "<<command_.twist.linear.x<<","<<command_.twist.linear.y<<","<<command_.twist.linear.z<<std::endl;
+//        std::cout<<"get vel cmd  "<<command_.twist.linear.x<<","<<command_.twist.linear.y<<","<<command_.twist.linear.z<<std::endl;
         // control horizontal position
         HorizontalPositionCommandHandle(*pose_input_).getError(*pose_, error_n, error_w);
         error_u=HeightCommandHandle(*pose_input_).getError(*pose_);
@@ -317,7 +325,7 @@ public:
 
 
       Vector3 acceleration_command_body = pose_->toBody(acceleration_command);
-      std::cout<<"get output acc  "<<acceleration_command<<std::endl;
+//      std::cout<<"get output acc  "<<acceleration_command<<std::endl;
 
       wrench_.wrench.torque.x = inertia_[0] * pid_.angular.x.update(-acceleration_command_body.y / gravity, 0.0, twist_body.angular.x, period);
       wrench_.wrench.torque.y = inertia_[1] * pid_.angular.y.update( acceleration_command_body.x / gravity, 0.0, twist_body.angular.y, period);
@@ -379,7 +387,8 @@ private:
   bool command_given_in_stabilized_frame_;
   std::string base_link_frame_;
 
-  ros::Publisher state_pub,ref_pub;
+  ros::Publisher statez_pub,ref_pub;
+//  ros::Publisher pose_pub;
 
   struct {
     struct {

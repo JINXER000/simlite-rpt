@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(hector_quadrotor_reference)
-set(ROS_BUILD_TYPE Debug)
-set(CMAKE_BUILD_TYPE Debug)
+#set(ROS_BUILD_TYPE Debug)
+#set(CMAKE_BUILD_TYPE Debug)
 ## Add support for C++11, supported in ROS Kinetic and newer
 # add_definitions(-std=c++11)
 

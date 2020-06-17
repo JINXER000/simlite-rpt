@@ -22,9 +22,11 @@ int main(int argc, char **argv)
     std::string refAdr;
     
     n.getParam("/refPub/refAdr", refAdr="noFile");
-//    int ctrlMethod;
-//    n.getParam("/refPub/ctrlMethod", ctrlMethod=posCtrl);
-    int init_pos[3]={2.5,-2,0.25};
+    float init_pos[3]={0,8,0.5};//{2.5,-2,0.25};
+    n.getParam("/refPub/initx", init_pos[0]=0);
+    n.getParam("/refPub/inity", init_pos[1]=0);
+    n.getParam("/refPub/initz", init_pos[2]=0);
+    std::cout<<"init pos is("<<init_pos[0]<<","<<init_pos[1]<<","<<init_pos[2]<<")"<<std::endl;
     std_srvs::Empty::Request eReq;
     std_srvs::Empty::Response eRes;
 
@@ -42,6 +44,7 @@ int main(int argc, char **argv)
     {
       ros::service::call("/engage", eReq, eRes);
     }
+    std::cout<<"motor engaged!"<<std::endl;
     ros::Publisher ref_pos_pub = n.advertise<geometry_msgs::PoseStamped>("command/pose",1);
 //    ros::Publisher ref_vel_pub = n.advertise<geometry_msgs::TwistStamped>("command/twist",1);
      ros::Publisher ref_pva_pub=n.advertise<common_msgs::state>("commonCMD/pva",1);
@@ -62,12 +65,7 @@ int main(int argc, char **argv)
     {
 
         
-//    if(ctrlMethod==0)
-//    {
 
-//            ROS_WARN("cfg fail!\n");
-//    }else
-//    {
          common_msgs::state p;
         if(!if_replay)
         {
@@ -116,10 +114,9 @@ int main(int argc, char **argv)
 //             cmdVel.twist.linear.z=p.vel.z;
 //             ref_vel_pub.publish(cmdVel);
 
-        std::cout<<" P,V,A REF is "<<p.pos.x<<",  "<< p.pos.y<<",  "<< p.pos.z<<",  "<< p.vel.x<<",  "<< p.vel.y<<
-        ",  "<< p.vel.z<<",  "<< p.acc.x<<",  "<< p.acc.y<<",  "<< p.acc.z<<std::endl;
+//        std::cout<<" P,V,A REF is "<<p.pos.x<<",  "<< p.pos.y<<",  "<< p.pos.z<<",  "<< p.vel.x<<",  "<< p.vel.y<<
+//        ",  "<< p.vel.z<<",  "<< p.acc.x<<",  "<< p.acc.y<<",  "<< p.acc.z<<std::endl;
 
-//    }
     
 
         ros::spinOnce();

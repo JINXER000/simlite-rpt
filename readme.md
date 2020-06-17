@@ -23,3 +23,17 @@ For  now, pointcloud in rviz is relative to base_link.
 - source devel/sebup.bash
 - roslaunch hector_quadrotor_demo carpark_2quad.launch
 - roslaunch hector_quadrotor_reference ref_ns.launch
+
+
+## to use keyboard control
+- in controller.launch, launch controller/twist only
+- in another terminal: rosrun teleop_twist_keyboard teleop_twist_keyboard.py
+- rosservice call /engage
+- play in the keyboard termial! press t to take off
+
+## Update asus model
+I found that if asus is mounted in front of the drone, the controller will diverge on the very beginning. So I mounted it
+on top of the drone and make it symetry.
+At the same time, I canceled the rotation on pitch axis to make the fov to the front. For now, it works well
+with my old version EDT.
+- TODO: However, I don't know how to stabilize the unbalanced setting and how to rotate the yaw angle of asus model...

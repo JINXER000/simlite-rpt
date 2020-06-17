@@ -144,6 +144,7 @@ public:
 
     // return if no pose command is available
     if (pose_input_->enabled()) {
+
       // for plot
       std_msgs::Float32 plot_states,plot_ref;
       plot_states.data=pose_->get()->position.z;
@@ -157,9 +158,9 @@ public:
       output.linear.x = pid_.x.update(error_n, twist_->twist().linear.x, period);
       output.linear.y = pid_.y.update(error_w, twist_->twist().linear.y, period);
 
-      // control height
+    // control height
       output.linear.z = pid_.z.update(HeightCommandHandle(*pose_input_).getError(*pose_), twist_->twist().linear.z, period);
-
+ std::cout<<"linear output is "<<output.linear.z <<std::endl;
       // control yaw angle
       output.angular.z = pid_.yaw.update(HeadingCommandHandle(*pose_input_).getError(*pose_), twist_->twist().angular.z, period);
     }

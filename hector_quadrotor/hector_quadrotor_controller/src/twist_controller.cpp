@@ -124,6 +124,7 @@ public:
     command_ = *command;
     if (command_.header.stamp.isZero()) command_.header.stamp = ros::Time::now();
     command_given_in_stabilized_frame_ = false;
+    std::cout<<"get intrinsic "<<command_.twist.linear.x<<","<<command_.twist.linear.y<<","<<command_.twist.linear.z<<std::endl;
 
     // start controller if it not running
     if (!isRunning()) this->startRequest(command_.header.stamp);
@@ -135,6 +136,7 @@ public:
     command_.twist = *command;
     command_.header.stamp = ros::Time::now();
     command_given_in_stabilized_frame_ = true;
+    std::cout<<"get cmd_vel "<<command_.twist.linear.x<<","<<command_.twist.linear.y<<","<<command_.twist.linear.z<<std::endl;
 
     // start controller if it not running
     if (!isRunning()) this->startRequest(command_.header.stamp);
@@ -178,7 +180,6 @@ public:
     if (twist_input_->connected() && twist_input_->enabled()) {
       command_.twist = twist_input_->getCommand();
       command_given_in_stabilized_frame_ = false;
-      std::cout<<"get intrinsic twist  "<<command_.twist.linear.x<<","<<command_.twist.linear.y<<","<<command_.twist.linear.z<<std::endl;
     }
 
     // Get current state and command

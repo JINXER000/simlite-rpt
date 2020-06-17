@@ -1,6 +1,8 @@
 <launch>
 <param name="/refPub/refAdr" value="$(find hector_quadrotor_reference)/traj/1_file.txt"/>
-
+<param name="/refPub/initx" value="2.5"/>
+<param name="/refPub/inity" value="-2"/>
+<param name="/refPub/initz" value="0.25"/>
     <node pkg="hector_quadrotor_reference" name="refPubNoReset" type="refPubNoReset" output="screen"/>
 
 </launch>
