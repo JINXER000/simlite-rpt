@@ -294,6 +294,8 @@ void GazeboRosVelodyneLaser::OnScan(ConstLaserScanStampedPtr& _msg)
   msg.fields[4].count = 1;
   msg.data.resize(verticalRangeCount * rangeCount * POINT_STEP);
 
+  // view the rangecount
+//  printf(" the range count is %d \n",rangeCount);
   int i, j;
   uint8_t *ptr = msg.data.data();
   for (i = 0; i < rangeCount; i++) {

@@ -5,7 +5,9 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
+        - /Grid1
         - /TF1/Frames1
+        - /VLP-161
       Splitter Ratio: 0.5
     Tree Height: 565
   - Class: rviz/Selection
@@ -47,7 +49,7 @@ Visualization Manager:
         Y: 0
         Z: 0
       Plane: XY
-      Plane Cell Count: 10
+      Plane Cell Count: 50
       Reference Frame: <Fixed Frame>
       Value: true
     - Class: rviz/TF
@@ -73,14 +75,13 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
-        base_link:
-          laser0_base_link:
-            laser0:
-              {}
         world:
           base_footprint:
             base_stabilized:
-              {}
+              base_link:
+                laser0_base_link:
+                  laser0:
+                    {}
       Update Interval: 0
       Value: true
     - Alpha: 1
@@ -137,7 +138,7 @@ Visualization Manager:
       Queue Size: 10
       Selectable: true
       Size (Pixels): 3
-      Size (m): 0.00999999978
+      Size (m): 0.0199999996
       Style: Flat Squares
       Topic: /velodyne_points
       Unreliable: false
@@ -199,25 +200,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 8.05344772
+      Distance: 27.2133179
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 1.58761883
-        Y: 0.431803226
+        X: -3.23216438
+        Y: 0.485003948
         Z: -2.62260437e-06
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.865398526
+      Pitch: 1.56979632
       Target Frame: <Fixed Frame>
       Value: XYOrbit (rviz)
-      Yaw: 0.345442802
+      Yaw: 3.07544518
     Saved: ~
 Window Geometry:
   Displays:
