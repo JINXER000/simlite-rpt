@@ -20,7 +20,7 @@ For  now, pointcloud in rviz is relative to base_link.
 
 ## Update multiple uav support
 ### To launch the simulator:
-- source devel/sebup.bash
+- source devel/setup.bash
 - roslaunch hector_quadrotor_demo carpark_2quad.launch
 - roslaunch hector_quadrotor_reference ref_ns.launch
 
@@ -36,4 +36,4 @@ I found that if asus is mounted in front of the drone, the controller will diver
 on top of the drone and make it symetry.
 At the same time, I canceled the rotation on pitch axis to make the fov to the front. For now, it works well
 with my old version EDT.
-- TODO: However, I don't know how to stabilize the unbalanced setting and how to rotate the yaw angle of asus model...
+- TODO: However, I don't know how to rotate the yaw angle of asus model...
