@@ -8,6 +8,9 @@ find_package(catkin REQUIRED COMPONENTS roscpp std_msgs std_srvs geometry_msgs n
 include_directories(include ${catkin_INCLUDE_DIRS})
 
 ## Find gazebo
+if(POLICY CMP0054)
+  cmake_policy(SET CMP0054 NEW)
+endif()
 find_package(gazebo REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")
 include_directories(${GAZEBO_INCLUDE_DIRS})
@@ -53,7 +56,6 @@ generate_dynamic_reconfigure_options(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-    DEPENDS gazebo
     CATKIN_DEPENDS roscpp std_msgs geometry_msgs nav_msgs tf message_runtime
     INCLUDE_DIRS include
     LIBRARIES

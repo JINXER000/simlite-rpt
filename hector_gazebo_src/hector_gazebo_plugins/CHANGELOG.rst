@@ -2,6 +2,37 @@
 Changelog for package hector_gazebo_plugins
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.5.1 (2018-06-29)
+------------------
+* Merge pull request `#44 <https://github.com/tu-darmstadt-ros-pkg/hector_gazebo/issues/44>`_ from esteve/gazebo8
+  Use Gazebo 8 APIs to avoid deprecation warnings.
+* Fix indent
+* Depend on gazebo_dev instead
+* Use sdf::Time to read time periods from SDF files.
+* Only include math headers when building for Gazebo < 8
+* Use Gazebo 8 APIs to avoid deprecation warnings.
+* Merge pull request `#36 <https://github.com/tu-darmstadt-ros-pkg/hector_gazebo/issues/36>`_ from vincentrou/get_fix_status
+  [gazebo_plugins] Ensure to get gps fix status as an int in urdf
+* hector_gazebo_plugins: numeric conversion of NavSatFix status and service from SDF without std::stoi
+* [gazebo_plugins] Ensure to get gps fix status as an int
+* hector_gazebo_plugins/hector_gazebo_thermal_camera: removed catkin_package(DEPENDS gazebo) declaration which was a no-op anyway
+  See https://github.com/ros-simulation/gazebo_ros_pkgs/pull/537.
+* Contributors: Esteve Fernandez, Johannes Meyer, Vincent Rousseau
+
+0.5.0 (2016-06-24)
+------------------
+* Updated gazebo dependencies to version 7 for kinetic release
+* Contributors: Johannes Meyer
+
+0.4.1 (2016-06-24)
+------------------
+* see 0.3.8
+
+0.4.0 (2015-11-07)
+------------------
+* Added proper dependencies for jade and gazebo5. Now compiles and works for gazebo5
+* Contributors: L0g1x
+
 0.3.8 (2016-06-24)
 ------------------
 * hector_gazebo_plugins: fixed angular rate output with non-zero rpyOffset parameter (fix #23)

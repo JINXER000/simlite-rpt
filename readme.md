@@ -24,6 +24,11 @@ For  now, pointcloud in rviz is relative to base_link.
 - roslaunch hector_quadrotor_demo carpark_2quad.launch
 - roslaunch hector_quadrotor_reference ref_ns.launch
 
+## Update multiple uav with vlp16
+### To launch the simulator:
+- source devel/setup.bash
+- roslaunch hector_quadrotor_demo carpark_2quad_vlp16.launch
+- roslaunch hector_quadrotor_reference ref_ns.launch
 
 ## to use keyboard control
 - in controller.launch, launch controller/twist only
