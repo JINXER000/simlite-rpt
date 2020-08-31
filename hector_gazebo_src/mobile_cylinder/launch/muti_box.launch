@@ -1,0 +1,25 @@
+<launch>
+  
+  <!-- decision and plan node -->
+  
+ 
+  <node pkg="mobile_cylinder" name="pose_publisher1" type="move_cylinder_py.py" output="screen" >
+ 
+  </node>
+  
+    <node pkg="mobile_cylinder" name="pose_publisher2" type="move_cylinder_1.py" output="screen" >
+ 
+  </node>
+
+  <node pkg="mobile_cylinder" name="pose_publisher3" type="box_2.py" output="screen" >
+ 
+  </node>
+
+  <node pkg="mobile_cylinder" name="pose_publisher4" type="box_3.py" output="screen" >
+ 
+  </node>
+
+
+  
+</launch>
+

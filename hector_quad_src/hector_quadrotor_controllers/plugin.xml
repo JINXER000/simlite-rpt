@@ -18,5 +18,12 @@
         TODO
       </description>
     </class>
+    <class name="hector_quadrotor_controllers/PVAController" type="hector_quadrotor_controllers::PVAController"
+            base_class_type="controller_interface::ControllerBase">
+    <description>
+      Input p,v,a, use rpt to compute wrench.
+      </description>
+    </class>
+
   </library>
 </class_libraries>

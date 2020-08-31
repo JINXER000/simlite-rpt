@@ -2,8 +2,8 @@
 
   <!-- Order is important! -->
   <arg name="controllers" default="
-    controller/position
-    controller/velocity
+  controller/velocity
+  controller/position
     controller/attitude
     "/>
 

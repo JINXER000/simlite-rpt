@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<launch>
+<!--
+ Start Gazebo with wg world running in (max) realtime 
+-->
+  <include file="$(find hector_gazebo_worlds)/launch/viconRoom.launch"/>
+<!-- Spawn simulated quadrotor uav -->
+  <include file="$(find hector_quadrotor_gazebo)/launch/spawn_quadrotor_with_kinect.launch"> </include>
+
+  <include file="$(find mobile_cylinder)/launch/muti_box.launch"/>
+  
+    <!-- Start SLAM system -->
+  <include file="$(find hector_mapping)/launch/mapping_default.launch">
+    <arg name="odom_frame" value="world"/>
+  </include>
+
+</launch>

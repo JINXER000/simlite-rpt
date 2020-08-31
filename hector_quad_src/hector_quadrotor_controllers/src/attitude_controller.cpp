@@ -149,6 +149,7 @@ public:
     yawrate_command_ = yawrate_limiter_(yawrate_command_);
     thrust_command_ = thrust_limiter_(thrust_command_);
 
+//    std::cout<<"thrust output is "<<thrust_command_.thrust<<std::endl;
     // TODO move estop to gazebo plugin
     if ((motor_status_->motorStatus().running == true) &&
         !command_timeout_.isZero() && (
@@ -211,6 +212,7 @@ public:
     wrench_control_.wrench.force.x  = 0.0;
     wrench_control_.wrench.force.y  = 0.0;
     wrench_control_.wrench.force.z = thrust_command_.thrust;
+
 
     // set wrench output
     wrench_control_.header.stamp = time;

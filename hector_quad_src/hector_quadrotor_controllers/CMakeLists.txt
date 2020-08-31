@@ -11,12 +11,13 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   tf2_geometry_msgs
   visualization_msgs
+  common_msgs
   )
 include_directories(${catkin_INCLUDE_DIRS})
 
 catkin_package(
     LIBRARIES hector_quadrotor_controllers
-    CATKIN_DEPENDS roscpp
+    CATKIN_DEPENDS roscpp common_msgs
     DEPENDS
 )
 
@@ -24,6 +25,7 @@ add_library(hector_quadrotor_controllers
   src/attitude_controller.cpp
   src/velocity_controller.cpp
   src/position_controller.cpp
+  src/pva_controller.cpp
   )
 target_link_libraries(hector_quadrotor_controllers ${catkin_LIBRARIES})
 add_dependencies(hector_quadrotor_controllers ${catkin_EXPORTED_TARGETS})
