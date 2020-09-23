@@ -71,6 +71,9 @@ public:
     controller_nh.getParam("lever", parameters_.lever = 0.275);
     root_nh.param<std::string>("base_link_frame", base_link_frame_, "base_link");
 
+    torque_sub= root_nh.subscribe<geometry_msgs::WrenchStamped>("hil_torque", 1, boost::bind(&MotorController::wrenchCommandCallback, this, _1));
+
+
     // TODO: calculate these parameters from the quadrotor_propulsion parameters
 //    quadrotor_propulsion:
 //            k_t: 0.015336864714397
@@ -100,6 +103,7 @@ public:
 
   void wrenchCommandCallback(const geometry_msgs::WrenchStampedConstPtr& command)
   {
+    ROS_WARN("get torque!\n");
     wrench_ = *command;
     if (wrench_.header.stamp.isZero()) wrench_.header.stamp = ros::Time::now();
 
@@ -127,7 +131,7 @@ public:
 
     // Update output
     if (wrench_.wrench.force.z > 0.0) {
-
+      printf("wrench_.wrench.force.z is %f\n",wrench_.wrench.force.z);
       double nominal_thrust_per_motor = wrench_.wrench.force.z / 4.0;
       motor_.force[0] =  nominal_thrust_per_motor - wrench_.wrench.torque.y / 2.0 / parameters_.lever;
       motor_.force[1] =  nominal_thrust_per_motor - wrench_.wrench.torque.x / 2.0 / parameters_.lever;
@@ -172,6 +176,8 @@ private:
   geometry_msgs::WrenchStamped wrench_;
   hector_uav_msgs::MotorCommand motor_;
   std::string base_link_frame_;
+
+  ros::Subscriber torque_sub;
 
   struct {
     double force_per_voltage;     // coefficient for linearized volts to force conversion for a single motor [N / V]
